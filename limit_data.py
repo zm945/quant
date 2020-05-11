@@ -6,10 +6,10 @@
 #        E-mail: zm945@126.com
 #    Created on: Thu May  7 09:17:31 2020
 #   Description:
-#   Code editor    Spyder 编辑器
+#   Code editor:   Spyder 编辑器
 #############################################################################
 
-#导入相关模块
+# 导入相关模块
 import tushare as ts
 import pandas as pd
 import numpy as np
@@ -18,8 +18,8 @@ import pickle
 import datetime as dt
 import time
 
-#设置数据目录
-Stock_Data_Dir=Path.home()/'Stock_Data/Tushare'
+# 设置数据目录
+Stock_Data_Dir = Path.home()/'Stock_Data/Tushare'
 if (not Stock_Data_Dir.exists()):
     Stock_Data_Dir.mkdir(parents=True, exist_ok=True)
 out_hdf_dir=Stock_Data_Dir/'hdf'
@@ -40,12 +40,29 @@ pd.set_option('io.hdf.default_format','table')
 #当日股票涨跌停价格。
 #限量：单次最多提取4800条记录，可循环调取，总量不限制
 #积分：用户积600积分可调取，单位分钟有流控，积分越高流量越大，
-stk_limit= pro.stk_limit(trade_date='20070104')
+#stk_limit= pro.stk_limit(trade_date='20070104')
 
-#获取单日统计数据-经测试确定，起始时间为20160215
-limit_list = pro.limit_list(trade_date='20160215')
+#获取单日涨跌停统计数据
+#limit_list = pro.limit_list(trade_date='20160215')
 
 #获取各大交易所交易日历数据,默认提取的是上交所
-trade_cal= pro.trade_cal(exchange='', start_date='20160101', end_date='20160229',is_open='1')
+lsdate='20160215'     #经测试确定,涨跌停统计数据起始时间为20160215
+stkdate='20070104'    #单日全部股票数据涨跌停价格-经测试，起始时间为20070104
 
-def
+limit_cal= pro.trade_cal(exchange='', start_date=lsdate, end_date='20200506',is_open='1')['cal_date']
+stk_cal=pro.trade_cal(exchange='', start_date=stkdate, end_date='20200506',is_open='1')['cal_date']
+
+tmp=[]
+for tdate in  limit_cal:
+    while(True):
+        try:
+            df=pro.limit_list(trade_date=tdate)
+            tmp.append(df)
+            break
+        except:
+            print('因超时等待10秒重试......')
+            time.sleep(10)
+limit_list=pd.concat(tmp,ignore_index=True)
+
+#df = ts.get_hist_data('000875')
+limit_list.to_hdf(out_hdf_dir/'hdf.h5',limit_list)
