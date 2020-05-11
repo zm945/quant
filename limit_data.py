@@ -6,7 +6,7 @@
 #        E-mail: zm945@126.com
 #    Created on: Thu May  7 09:17:31 2020
 #   Description:
-#   Code editor:   Spyder 编辑器
+#   Code editor: Spyder 编辑器
 #############################################################################
 
 # 导入相关模块
