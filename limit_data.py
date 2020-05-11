@@ -65,4 +65,4 @@ for tdate in  limit_cal:
 limit_list=pd.concat(tmp,ignore_index=True)
 
 #df = ts.get_hist_data('000875')
-limit_list.to_hdf(out_hdf_dir/'hdf.h5',limit_list)
+limit_list.to_hdf(out_hdf_dir/'hdf.h5','limit_list',encoding='gbk',complevel=9)
