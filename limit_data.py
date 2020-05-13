@@ -68,7 +68,6 @@ def build_data(func, dates):
     limitdatas = pd.concat(tmp, ignore_index=True)
     return limitdatas
 
-
 limit_list = build_data(pro.limit_list, limit_cal)
 limit_list.to_hdf(out_hdf_dir/'hdf.h5', 'limit_list',
                   complevel=9)   # 在ubuntu上用hdfview查看会乱码，必须设置encoding='gbk'
