@@ -76,7 +76,7 @@ print('获取单日涨跌停统计数据ok')
 
 stk_limit=build_data(pro.stk_limit, limit_cal)
 stk_limit.to_hdf(out_hdf_dir/'hdf.h5', 'stk_limit',
-                 complevel=9)   # 在ubuntu上用hdfview查看会乱码，必须设置encoding='gbk'
+                 complevel=9)   
 print('获取单日全部股票数据涨跌停价格ok') 
 
 
