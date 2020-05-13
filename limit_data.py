@@ -54,7 +54,6 @@ limit_cal = pro.trade_cal(exchange='', start_date=lsdate,
 stk_cal = pro.trade_cal(exchange='', start_date=stkdate,
                         end_date='20200506', is_open='1')['cal_date']
 
-
 def build_data(func, dates):
     tmp = []
     for tdate in dates:
