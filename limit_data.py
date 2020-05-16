@@ -4,9 +4,9 @@
 #     File Name: limit_data.py
 #        Author: 巴山哥
 #        E-mail: zm945@126.com
-#    Created on: Thu May  7 09:17:31 2020
+#    Created on: Sat May 16 22:12:21 2020
 #   Description: 读取Tushare数据建立涨跌停数据库
-#   Code editor: Spyder 编辑器
+#   Code editor: Spyder & vscode
 #############################################################################
 
 # 导入相关模块
@@ -43,7 +43,7 @@ if (not Stock_Data_Dir.exists()):
 out_hdf_dir = Stock_Data_Dir / 'hdf'
 if (not out_hdf_dir.exists()):  # Path.exists()
     out_hdf_dir.mkdir(parents=True, exist_ok=True)
-hdfile = out_hdf_dir / 'hdf.h5'  # 数据库文件
+hdfile = out_hdf_dir / 'stock.h5'  # 数据库文件
 
 # 设置token并初始化接口
 tokenfile = Stock_Data_Dir / 'Token' / 'token.pk'
@@ -55,12 +55,6 @@ pro = ts.pro_api()
 # 设置hdf文件存储格式
 pd.set_option('io.hdf.default_format', 'table')
 
-# 获取当前时间
-now = dt.datetime.now()  # 输出顺序为：年、月、日、时、分、秒、微妙
-today = dt.date.today()
-edate = today.strftime("%Y%m%d")  # 转换时间格式
-print('today=', edate)
-
 # 判断数据库文件是否存在
 if (Path.exists(hdfile)):
     updata = True  # 如果文件存在则采用追加更新
@@ -68,12 +62,17 @@ if (Path.exists(hdfile)):
     lsdate = rdate['trade_date']
     stkdate = rdate['trade_date']
     sindex = 1  # 日期切片索引起始位置，1-当前最后统计日期的下一个交易日
-
 else:  # 新建数据文件，从头至今存储所有数据
     updata = False
     lsdate = '20160215'  # 涨跌停统计数据起始时间为20160215
     stkdate = '20070104'  # 单日全部股票数据涨跌停价格起始时间为20070104
     sindex = 0
+
+# 获取当前时间
+now = dt.datetime.now()  # 输出顺序为：年、月、日、时、分、秒、微妙
+today = dt.date.today()
+edate = today.strftime("%Y%m%d")  # 转换时间格式
+print('today=', edate)
 
 # 获取各大交易所交易日历数据,默认提取的是上交所
 limit_cal = pro.trade_cal(exchange='', start_date=lsdate,
