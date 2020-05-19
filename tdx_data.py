@@ -1,8 +1,15 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#############################################################################
+#     File Name: tdx_data.py
+#        Author: 巴山哥
+#        E-mail: zm945@126.com
+#    Created on: Mon May 18 15:04:37 2020
+#   Description: 通达信数据存储
+#   Code editor: Spyder & vscode
+#############################################################################
 
-
-#  通达信数据存储
-# ### 基本设置
-# ####  导入模块
+# 导入模块
 
 import pandas as pd
 import numpy as np
@@ -14,19 +21,18 @@ import platform
 pd.set_option('io.hdf.default_format', 'table')
 
 # 设置数据目录
-# + windows通达信程序主目录(其vipdoc子目录中包含日线数据)  D:/2020tdx
-# + windosw股票数据主目录 D:/Stock_Data其下的csv和hdf子目录分别存储对应格式的数据文件
-# + Tushare相关指标数据存于子目录tushare中
-# + mac及ubuntu均为主目录下建立对应的子目录
 
+# windosw
+# Tushare相关指标数据存于子目录tushare中
 
 if(platform.system() == 'Windows'):
-    TDX_Data_Dir = Path('D:/2020tdx/vipdoc')
-    Stock_Data_Dir = Path('D:/Stock_Data')
+    TDX_Data_Dir = Path('D:/2020tdx/vipdoc')   # 通达信程序主目录(其vipdoc子目录中包含日线数据)  D:/2020tdx
+    Stock_Data_Dir = Path('D:/Stock_Data')     # 股票数据主目录-存放转换后的数据
+     
 else:
-    TDX_Data_Dir = Path.home()/'Stock_Data/TDX'
+    TDX_Data_Dir = Path.home()/'Stock_Data/TDX' # mac及ubuntu均为主目录下建立对应的子目录存放通达信原始日线数据
     Stock_Data_Dir = Path.home()/'Stock_Data'
-sub_dirs = ['csv', 'hdf', 'tushare']
+sub_dirs = ['csv', 'hdf', 'tushare']           # D:/Stock_Data其下的csv和hdf子目录分别存储对应格式的数据文件
 
 for i in range(len(sub_dirs)):
     out_sub_dir = Stock_Data_Dir/sub_dirs[i]  # 可以使用/符号来拼接路径
@@ -66,7 +72,7 @@ def parse_data(dayfile, fileoffset=0):
     12 ~ 15 字节：最低价*100,整型 low
     16 ~ 19 字节：收盘价*100, 整型 close
     20 ~ 23 字节：成交额（元）,float型--/1000=千元 amount
-    24 ~ 27 字节：成交量（股）,整型--/100=手  vol 
+    24 ~ 27 字节：成交量（股）,整型--/100=手  vol
     28 ~ 31 字节：（保留）
     '''
     with open(dayfile, 'rb') as f:
