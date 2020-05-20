@@ -1,3 +1,11 @@
+'''
+@Author: 巴山哥
+@Date: 2020-05-18 15:14:58
+@LastEditTime: 2020-05-20 09:19:46
+@Description: 
+@FilePath: /quant/tdx_data.py
+@E-mail: zm945@126.com
+'''
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #############################################################################
@@ -21,25 +29,25 @@ import platform
 pd.set_option('io.hdf.default_format', 'table')
 
 # 设置数据目录
-
-# windosw
+# 根据操作系统分别设置不同的数据目录了
+# TDX_Data_Dir--通达信原始日线数据目录
+# Stock_Data_Dir--存放转换后的数据主目录
+# sub_dirs--存储转换后对应格式的数据文件
 # Tushare相关指标数据存于子目录tushare中
 
-if(platform.system() == 'Windows'):
-    TDX_Data_Dir = Path('D:/2020tdx/vipdoc')   # 通达信程序主目录(其vipdoc子目录中包含日线数据)  D:/2020tdx
-    Stock_Data_Dir = Path('D:/Stock_Data')     # 股票数据主目录-存放转换后的数据
-     
+if (platform.system() == 'Windows'):
+    TDX_Data_Dir = Path('D:/2020tdx/vipdoc')
+    Stock_Data_Dir = Path('D:/Stock_Data')
 else:
-    TDX_Data_Dir = Path.home()/'Stock_Data/TDX' # mac及ubuntu均为主目录下建立对应的子目录存放通达信原始日线数据
-    Stock_Data_Dir = Path.home()/'Stock_Data'
-sub_dirs = ['csv', 'hdf', 'tushare']           # D:/Stock_Data其下的csv和hdf子目录分别存储对应格式的数据文件
+    TDX_Data_Dir = Path.home() / 'Stock_Data/TDX'  # mac及ubuntu
+    Stock_Data_Dir = Path.home() / 'Stock_Data'
+sub_dirs = ['csv', 'hdf', 'tushare']
 
-for i in range(len(sub_dirs)):
-    out_sub_dir = Stock_Data_Dir/sub_dirs[i]  # 可以使用/符号来拼接路径
-    if(not out_sub_dir.exists()):
+for i in range(len(sub_dirs)):   
+    out_sub_dir = Stock_Data_Dir / sub_dirs[i]  # 可以使用/符号来拼接路径
+    if (not out_sub_dir.exists()):
         out_sub_dir.mkdir()
     print(out_sub_dir)
-
 
 # 判断是否为A股代码
 
@@ -52,7 +60,7 @@ def judge_stockcode(dayfile):
     沪市A股的代码是以6开头的，其中600、601或603是主板股票，688是是科创板股票
     '''
     filename = dayfile.stem  # 读取主文件名，不含路径和扩展名
-    pattern = '(sh600|sh601|sh603|sh688|sz000|sz002|sz300)\d{3}$'
+    pattern = r'(sh600|sh601|sh603|sh688|sz000|sz002|sz300)\d{3}$'
     regex = re.compile(pattern, flags=re.I)
     Astockcode = True if regex.match(filename) else False
     return Astockcode
@@ -76,8 +84,9 @@ def parse_data(dayfile, fileoffset=0):
     28 ~ 31 字节：（保留）
     '''
     with open(dayfile, 'rb') as f:
-        data = np.fromfile(
-            f, dtype='<i4,<i4,<i4,<i4,<i4,<f4,<i4,<i4', offset=fileoffset)  # 直接读入二进制结构数组中
+        data = np.fromfile(f,
+                           dtype='<i4,<i4,<i4,<i4,<i4,<f4,<i4,<i4',
+                           offset=fileoffset)  # 直接读入二进制结构数组中
     kline = [list(data[i])[:7] for i in range(data.size)]
     return kline
 
@@ -109,10 +118,9 @@ def build_tushare_data(kline, tdxcols, tusharecols, ts_code):
 
 # #####  遍历日线文件并存储
 
-
 filesize = {}  # 用字典记录通达信日线文件的长度
 hdffile = Stock_Data_Dir / 'hdf/t6.h5'
-if(not Path(hdffile).exists()):  # 如果hdf文件不存在，则为全备份
+if (not Path(hdffile).exists()):  # 如果hdf文件不存在，则为全备份
     fileoffset = 0  # 字节偏移量为0
     dayfileinfo = False
 else:
@@ -138,16 +146,16 @@ for dayfile in TDX_Data_Dir.rglob('*.day'):
             code_label = dayfile.stem  # 设置group为主文件名
             ts_code = dayfile.stem[2:] + '.' + \
                 dayfile.stem[:2].upper()  # 按Tushare格式构造股票代码
-            if(dayfileinfo):  # 检查对应股票代码文件长度
-                if(dayfile in tdx_stack['dayfileinfo']):  # 如果有该股票，检查文件--避免停牌
-                    if(filelength > tdx_stack['dayfileinfo'][dayfile]):
+            if (dayfileinfo):  # 检查对应股票代码文件长度
+                if (dayfile in tdx_stack['dayfileinfo']):  # 如果有该股票，检查文件--避免停牌
+                    if (filelength > tdx_stack['dayfileinfo'][dayfile]):
                         fileoffset = tdx_stack['dayfileinfo'][dayfile]
                         tp = False  # 当日未停牌
                     else:
                         tp = True  # 当日停牌
                 else:  # 当日新股上市
                     offset = 0
-            if(not suspension):
+            if (not suspension):
                 kline = parse_data(dayfile, fileoffset)  # 解析数据
                 tdx_df = build_tushare_data(kline, tdxcols, tusharecols,
                                             ts_code)  # 构建股票数据
@@ -158,18 +166,13 @@ tdx_stack.put('dayfileinfo', pd.Series(filesize))
 tdx_stack.close()
 print(filecount)
 
-
 tdx_stack.close()
 
-
 # ##### 查看数据基本情况
-
-
-tdx_stack = pd.HDFStore(str(Stock_Data_Dir/'hdf/tdx.h5'))
+tdx_stack = pd.HDFStore(str(Stock_Data_Dir / 'hdf/tdx.h5'))
 test = tdx_stack['sh600000'].head(10)
 test
 
 tdx_stack.close()
-
 
 test.info()
