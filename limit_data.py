@@ -27,12 +27,16 @@ def build_data(func, dates):
         while (True):
             try:
                 df = func(trade_date=tdate)
-                tmp.append(df)
+                if (not df.empty):   #未收盘时，取不到当天到统计数据
+                    tmp.append(df)
                 break
             except:
                 print('因超时等待10秒重试')
                 time.sleep(10)
-    limitdatas = pd.concat(tmp, ignore_index=True)
+    if(len(tmp)>0):
+        limitdatas = pd.concat(tmp, ignore_index=True)
+    else:
+        limitdatas = pd.DataFrame()
     return limitdatas
 
 
@@ -58,7 +62,7 @@ pd.set_option('io.hdf.default_format', 'table')
 # 判断数据库文件是否存在
 if (Path.exists(hdfile)):
     updata = True  # 如果文件存在则采用追加更新
-    rdate = pd.read_hdf(hdfile, key='recordlastdate')  # 读取库中记录的最后统计时间
+    rdate = pd.read_hdf(hdfile, key='recordlastdate')  # 读取库中记录的最后统计时间---分别记录可能会更好！
     lsdate = rdate['trade_date']
     stkdate = rdate['trade_date']
     sindex = 1  # 日期切片索引起始位置，1-当前最后统计日期的下一个交易日
@@ -72,6 +76,7 @@ else:  # 新建数据文件，从头至今存储所有数据
 now = dt.datetime.now()  # 输出顺序为：年、月、日、时、分、秒、微妙
 today = dt.date.today()
 edate = today.strftime("%Y%m%d")  # 转换时间格式
+#edate = '20200520'
 print('today=', edate)
 
 # 获取各大交易所交易日历数据,默认提取的是上交所
@@ -93,14 +98,16 @@ else:  # 如果是新建数据库，limit和stk的起始时间不同，必须另
 if len(stk_cal) > 0:
     rdate = stk_cal.iloc[-1]  # 记录最后的统计日期
     limit_list = build_data(pro.limit_list, limit_cal)
-    limit_list.to_hdf(hdfile, 'limit_list', append=updata,
+    if(not limit_list.empty):
+        limit_list.to_hdf(hdfile, 'limit_list', append=updata,
                       complevel=9)   # 在win10上用hdfview查看会乱码，必须设置encoding='gbk'
-    print('获取单日涨跌停统计数据ok')
+        print('获取单日涨跌停统计数据ok')
     stk_limit = build_data(pro.stk_limit, stk_cal)
-    stk_limit.to_hdf(hdfile, 'stk_limit', append=updata,
+    if(not stk_limit.empty):
+        stk_limit.to_hdf(hdfile, 'stk_limit', append=updata,
                      complevel=9)
-    print('获取单日全部股票数据涨跌停价格ok')
-    pd.Series({'trade_date': rdate}).to_hdf(hdfile, 'recordlastdate')
-    print('记录最后统计日期ok')
+        print('获取单日全部股票数据涨跌停价格ok')
+        pd.Series({'trade_date': rdate}).to_hdf(hdfile, 'recordlastdate')
+        print('记录最后统计日期ok')
 else:
     print('已经是最新数据，无需更新')
