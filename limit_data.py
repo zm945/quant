@@ -45,7 +45,7 @@ Stock_Data_Dir = Path.home() / 'Stock_Data/Tushare'
 if (not Stock_Data_Dir.exists()):
     Stock_Data_Dir.mkdir(parents=True, exist_ok=True)
 out_hdf_dir = Stock_Data_Dir / 'hdf'
-if (not out_hdf_dir.exists()):  # Path.exists()
+if (not out_hdf_dir.exists()):  
     out_hdf_dir.mkdir(parents=True, exist_ok=True)
 hdfile = out_hdf_dir / 'st.h5'  # 数据库文件
 
@@ -85,13 +85,13 @@ limit_cal = pro.trade_cal(exchange='', start_date=lsdate,
 stk_cal = pro.trade_cal(exchange='', start_date=stkdate,
                         end_date=edate, is_open='1')['cal_date'][sindex:]
 
-# 获取单日涨跌停统计数据，起始时间为20160215
+# 获取单日涨跌停统计数据
 # limit_list = pro.limit_list(trade_date='20160215')
-# 获取单日全部股票数据涨跌停价格-经测试确定，起始时间为20070104
+# 获取单日全部股票数据涨跌停价格-经测试确定
 # stk_limit= pro.stk_limit(trade_date='20070104')
 # 限量：单次最多提取4800条记录，可循环调取，总量不限制
 # 积分：用户积600积分可调取，单位分钟有流控，积分越高流量越大，
-tradedate = {}
+tradedate = {}  #构建各数据集时间标签字典，{},[],()等都等价于False！
 if len(stk_cal) > 0:
     stkdate = stk_cal.iloc[-1]  # 记录最后的统计日期
     tradedate['stkdate'] = stkdate
@@ -99,7 +99,7 @@ if len(stk_cal) > 0:
     if(not stk_limit.empty):
         stk_limit.to_hdf(hdfile, 'stk_limit', append=updata,
                          complevel=9)
-        print('获取单日全部股票数据涨跌停价格ok')
+        print('获取单日全部股票数据涨跌停价格-ok!')
 if(len(limit_cal) > 0):
     lsdate = limit_cal.iloc[-1]  # 记录最后的统计日期
     tradedate['lsdate'] = lsdate
@@ -107,9 +107,9 @@ if(len(limit_cal) > 0):
     if(not limit_list.empty):
         limit_list.to_hdf(hdfile, 'limit_list', append=updata,
                           complevel=9)   # 在win10上用hdfview查看会乱码，必须设置encoding='gbk'
-        print('获取单日涨跌停统计数据ok')
-if(len(tradedate)>0):
+        print('获取单日涨跌停统计数据-ok!')
+if(tradedate):  # 非空
     pd.Series(tradedate).to_hdf(hdfile, 'recordlastdate')
-    print('记录最后统计日期ok')
+    print('记录最后统计日期-ok!')
 else:
     print('已经是最新数据，无需更新')
