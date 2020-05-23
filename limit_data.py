@@ -12,7 +12,6 @@
 # 导入相关模块
 import tushare as ts
 import pandas as pd
-import numpy as np
 from pathlib import Path
 import pickle
 import datetime as dt
@@ -47,7 +46,7 @@ if (not Stock_Data_Dir.exists()):
 out_hdf_dir = Stock_Data_Dir / 'hdf'
 if (not out_hdf_dir.exists()):  
     out_hdf_dir.mkdir(parents=True, exist_ok=True)
-hdfile = out_hdf_dir / 'st.h5'  # 数据库文件
+hdfile = out_hdf_dir / 'stock.h5'  # 数据库文件
 
 # 设置token并初始化接口
 tokenfile = Stock_Data_Dir / 'Token' / 'token.pk'
@@ -99,7 +98,7 @@ if len(stk_cal) > 0:
     if(not stk_limit.empty):
         stk_limit.to_hdf(hdfile, 'stk_limit', append=updata,
                          complevel=9)
-        print('获取单日全部股票数据涨跌停价格-ok!')
+        print('获取单日全部股票数据涨跌停价格-ok!,当前最后交易日期为:{}'.format(stkdate))
 if(len(limit_cal) > 0):
     lsdate = limit_cal.iloc[-1]  # 记录最后的统计日期
     tradedate['lsdate'] = lsdate
@@ -107,9 +106,11 @@ if(len(limit_cal) > 0):
     if(not limit_list.empty):
         limit_list.to_hdf(hdfile, 'limit_list', append=updata,
                           complevel=9)   # 在win10上用hdfview查看会乱码，必须设置encoding='gbk'
-        print('获取单日涨跌停统计数据-ok!')
+        print('获取单日涨跌停统计数据-ok!,当前最后交易日期为:{}'.format(lsdate))
 if(tradedate):  # 非空
     pd.Series(tradedate).to_hdf(hdfile, 'recordlastdate')
     print('记录最后统计日期-ok!')
 else:
+    print('全部股票数据涨跌停价格最后记录日期为:{}'.format(stkdate))
+    print('涨跌停统计数据最后记录日期为:{}'.format(lsdate))
     print('已经是最新数据，无需更新')
