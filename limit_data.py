@@ -32,7 +32,7 @@ def build_data(func, dates):
             except:
                 print('因超时等待10秒重试')
                 time.sleep(10)
-    if(len(tmp) > 0):
+    if (len(tmp) > 0):
         limitdatas = pd.concat(tmp, ignore_index=True)
     else:
         limitdatas = pd.DataFrame()
@@ -44,7 +44,7 @@ Stock_Data_Dir = Path.home() / 'Stock_Data/Tushare'
 if (not Stock_Data_Dir.exists()):
     Stock_Data_Dir.mkdir(parents=True, exist_ok=True)
 out_hdf_dir = Stock_Data_Dir / 'hdf'
-if (not out_hdf_dir.exists()):  
+if (not out_hdf_dir.exists()):
     out_hdf_dir.mkdir(parents=True, exist_ok=True)
 hdfile = out_hdf_dir / 'stock.h5'  # 数据库文件
 
@@ -79,10 +79,14 @@ edate = today.strftime("%Y%m%d")  # 转换时间格式
 print('当前日期是:', edate)
 
 # 获取各大交易所交易日历数据,默认提取的是上交所
-limit_cal = pro.trade_cal(exchange='', start_date=lsdate,
-                          end_date=edate, is_open='1')['cal_date'][sindex:]
-stk_cal = pro.trade_cal(exchange='', start_date=stkdate,
-                        end_date=edate, is_open='1')['cal_date'][sindex:]
+limit_cal = pro.trade_cal(exchange='',
+                          start_date=lsdate,
+                          end_date=edate,
+                          is_open='1')['cal_date'][sindex:]
+stk_cal = pro.trade_cal(exchange='',
+                        start_date=stkdate,
+                        end_date=edate,
+                        is_open='1')['cal_date'][sindex:]
 
 # 获取单日涨跌停统计数据
 # limit_list = pro.limit_list(trade_date='20160215')
@@ -95,19 +99,19 @@ if len(stk_cal) > 0:
     stkdate = stk_cal.iloc[-1]  # 记录最后的统计日期
     tradedate['stkdate'] = stkdate
     stk_limit = build_data(pro.stk_limit, stk_cal)
-    if(not stk_limit.empty):
-        stk_limit.to_hdf(hdfile, 'stk_limit', append=updata,
-                         complevel=9)
+    if (not stk_limit.empty):
+        stk_limit.to_hdf(hdfile, 'stk_limit', append=updata, complevel=9)
         print('获取单日全部股票数据涨跌停价格-ok!,当前最后交易日期为:{}'.format(stkdate))
-if(len(limit_cal) > 0):
+if (len(limit_cal) > 0):
     lsdate = limit_cal.iloc[-1]  # 记录最后的统计日期
     tradedate['lsdate'] = lsdate
     limit_list = build_data(pro.limit_list, limit_cal)
-    if(not limit_list.empty):
-        limit_list.to_hdf(hdfile, 'limit_list', append=updata,
-                          complevel=9)   # 在win10上用hdfview查看会乱码，必须设置encoding='gbk'
+    if (not limit_list.empty):
+        limit_list.to_hdf(
+            hdfile, 'limit_list', append=updata,
+            complevel=9)  # 在win10上用hdfview查看会乱码，必须设置encoding='gbk'
         print('获取单日涨跌停统计数据-ok!,当前最后交易日期为:{}'.format(lsdate))
-if(tradedate):  # 非空
+if (tradedate):  # 非空
     pd.Series(tradedate).to_hdf(hdfile, 'recordlastdate')
     print('记录最后统计日期-ok!')
 else:
