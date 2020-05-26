@@ -65,18 +65,20 @@ if (Path.exists(hdfile)):
     lsdate = rdate['lsdate']  # 涨跌停统计数据的最后时间
     stkdate = rdate['stkdate']
     sindex = 1  # 日期切片索引起始位置，1--当前最后统计日期的下一个交易日
+    tip='准备增量备份'
 else:  # 新建数据文件，从头至今存储所有数据
     updata = False
     lsdate = '20160215'  # 涨跌停统计数据起始时间为20160215
     stkdate = '20070104'  # 单日全部股票数据涨跌停价格起始时间为20070104
     sindex = 0
-
+    tip='新建数据文件，时间比较长，请耐心等待.....' 
 # 获取当前时间
 now = dt.datetime.now()  # 输出顺序为：年、月、日、时、分、秒、微妙
 today = dt.date.today()
 edate = today.strftime("%Y%m%d")  # 转换时间格式
 #edate = '20200520'
 print('当前日期是:', edate)
+print(tip)
 
 # 获取各大交易所交易日历数据,默认提取的是上交所
 limit_cal = pro.trade_cal(exchange='',
