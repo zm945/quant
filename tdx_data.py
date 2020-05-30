@@ -35,7 +35,7 @@ else:
     Stock_Data_Dir = Path.home() / 'Stock_Data'
 sub_dirs = ['csv', 'hdf', 'tushare']
 
-for i in range(len(sub_dirs)):   
+for i in range(len(sub_dirs)):
     out_sub_dir = Stock_Data_Dir / sub_dirs[i]  # 可以使用/符号来拼接路径
     if (not out_sub_dir.exists()):
         out_sub_dir.mkdir(parents=True, exist_ok=True)
@@ -56,6 +56,13 @@ def judge_stockcode(dayfile):
     regex = re.compile(pattern, flags=re.I)
     Astockcode = True if regex.match(filename) else False
     return Astockcode
+
+
+def get_fileinfo(dayfile):
+    '''
+    获取日线文件的基本信息
+    '''
+    pass
 
 
 # ##### 解析文件数据
@@ -114,10 +121,13 @@ filesize = {}  # 用字典记录通达信日线文件的长度
 hdffile = Stock_Data_Dir / 'hdf/tdx.h5'
 if (not Path(hdffile).exists()):  # 如果hdf文件不存在，则为全备份
     fileoffset = 0  # 字节偏移量为0
-    dayfileinfo = False
+    updata = False
+    tip = '新建数据文件.....'
 else:
-    dayfileinfo = True  # 如果hdf文件存在，则为增量备份
-
+    updata = True  # 如果hdf文件存在，则为增量备份
+    tip = '增量备份文件....'
+suspension = False  # 默认当日未停牌
+print(tip)
 # 据说使用blosc速度最快，但HDFView打开时数据报错
 tdx_stack = pd.HDFStore(str(hdffile), complevel=9)
 filecount = 0
@@ -138,33 +148,23 @@ for dayfile in TDX_Data_Dir.rglob('*.day'):
             code_label = dayfile.stem  # 设置group为主文件名
             ts_code = dayfile.stem[2:] + '.' + \
                 dayfile.stem[:2].upper()  # 按Tushare格式构造股票代码
-            if (dayfileinfo):  # 检查对应股票代码文件长度
-                if (dayfile in tdx_stack['dayfileinfo']):  # 如果有该股票，检查文件--避免停牌
+            if (updata):  #
+                if (dayfile in tdx_stack['dayfileinfo']):  # 如果有该股票，检查文件长度--避免停牌
                     if (filelength > tdx_stack['dayfileinfo'][dayfile]):
                         fileoffset = tdx_stack['dayfileinfo'][dayfile]
                         suspension = False  # 当日未停牌
                     else:
                         suspension = True  # 当日停牌
                 else:  # 当日新股上市
-                    offset = 0
-            if (not suspension):
+                    fileoffset = 0
+
+            if ((not suspension) or (not updata)):
                 kline = parse_data(dayfile, fileoffset)  # 解析数据
                 tdx_df = build_tushare_data(kline, tdxcols, tusharecols,
                                             ts_code)  # 构建股票数据
-                tdx_stack.put(code_label, tdx_df, append=True)
+                tdx_stack.put(code_label, tdx_df, append=updata)
                 filecount += 1
 
 tdx_stack.put('dayfileinfo', pd.Series(filesize))
 tdx_stack.close()
-print(filecount)
-
-tdx_stack.close()
-
-# ##### 查看数据基本情况
-tdx_stack = pd.HDFStore(str(Stock_Data_Dir / 'hdf/tdx.h5'))
-test = tdx_stack['sh600000'].head(10)
-test
-
-tdx_stack.close()
-
-test.info()
+print('共处理了{}个文件'.format(filecount))
