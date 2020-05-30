@@ -1,11 +1,3 @@
-'''
-@Author: 巴山哥
-@Date: 2020-05-18 15:14:58
-@LastEditTime: 2020-05-20 09:19:46
-@Description: 
-@FilePath: /quant/tdx_data.py
-@E-mail: zm945@126.com
-'''
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #############################################################################
@@ -46,7 +38,7 @@ sub_dirs = ['csv', 'hdf', 'tushare']
 for i in range(len(sub_dirs)):   
     out_sub_dir = Stock_Data_Dir / sub_dirs[i]  # 可以使用/符号来拼接路径
     if (not out_sub_dir.exists()):
-        out_sub_dir.mkdir()
+        out_sub_dir.mkdir(parents=True, exist_ok=True)
     print(out_sub_dir)
 
 # 判断是否为A股代码
@@ -119,7 +111,7 @@ def build_tushare_data(kline, tdxcols, tusharecols, ts_code):
 # #####  遍历日线文件并存储
 
 filesize = {}  # 用字典记录通达信日线文件的长度
-hdffile = Stock_Data_Dir / 'hdf/t6.h5'
+hdffile = Stock_Data_Dir / 'hdf/tdx.h5'
 if (not Path(hdffile).exists()):  # 如果hdf文件不存在，则为全备份
     fileoffset = 0  # 字节偏移量为0
     dayfileinfo = False
@@ -150,9 +142,9 @@ for dayfile in TDX_Data_Dir.rglob('*.day'):
                 if (dayfile in tdx_stack['dayfileinfo']):  # 如果有该股票，检查文件--避免停牌
                     if (filelength > tdx_stack['dayfileinfo'][dayfile]):
                         fileoffset = tdx_stack['dayfileinfo'][dayfile]
-                        tp = False  # 当日未停牌
+                        suspension = False  # 当日未停牌
                     else:
-                        tp = True  # 当日停牌
+                        suspension = True  # 当日停牌
                 else:  # 当日新股上市
                     offset = 0
             if (not suspension):
