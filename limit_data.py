@@ -65,20 +65,19 @@ if (Path.exists(hdfile)):
     lsdate = rdate['lsdate']  # 涨跌停统计数据的最后时间
     stkdate = rdate['stkdate']
     sindex = 1  # 日期切片索引起始位置，1--当前最后统计日期的下一个交易日
-    tip='准备增量备份'
+    tip = '准备增量备份:'
 else:  # 新建数据文件，从头至今存储所有数据
     updata = False
     lsdate = '20160215'  # 涨跌停统计数据起始时间为20160215
     stkdate = '20070104'  # 单日全部股票数据涨跌停价格起始时间为20070104
     sindex = 0
-    tip='新建数据文件，时间比较长，请耐心等待.....' 
+    tip = '新建数据文件，时间比较长，请耐心等待.....'
 # 获取当前时间
 now = dt.datetime.now()  # 输出顺序为：年、月、日、时、分、秒、微妙
 today = dt.date.today()
 edate = today.strftime("%Y%m%d")  # 转换时间格式
-#edate = '20200520'
-print('当前日期是:', edate)
-print(tip)
+print('当前日期是:{}'.format(edate),'\n',tip)
+
 
 # 获取各大交易所交易日历数据,默认提取的是上交所
 limit_cal = pro.trade_cal(exchange='',
@@ -103,7 +102,7 @@ if len(stk_cal) > 0:
     stk_limit = build_data(pro.stk_limit, stk_cal)
     if (not stk_limit.empty):
         stk_limit.to_hdf(hdfile, 'stk_limit', append=updata, complevel=9)
-        print('获取单日全部股票数据涨跌停价格-ok!,当前最后交易日期为:{}'.format(stkdate))
+        print('获取涨跌停价格-ok!,当前最后交易日期为:{}'.format(stkdate))
 if (len(limit_cal) > 0):
     lsdate = limit_cal.iloc[-1]  # 记录最后的统计日期
     tradedate['lsdate'] = lsdate
@@ -112,11 +111,10 @@ if (len(limit_cal) > 0):
         limit_list.to_hdf(
             hdfile, 'limit_list', append=updata,
             complevel=9)  # 在win10上用hdfview查看会乱码，必须设置encoding='gbk'
-        print('获取单日涨跌停统计数据-ok!,当前最后交易日期为:{}'.format(lsdate))
+        print('获取涨跌停统计数据-ok!,当前最后交易日期为:{}'.format(lsdate))
 if (tradedate):  # 非空
     pd.Series(tradedate).to_hdf(hdfile, 'recordlastdate')
     print('记录最后统计日期-ok!')
 else:
-    print('全部股票数据涨跌停价格最后记录日期为:{}'.format(stkdate))
-    print('涨跌停统计数据最后记录日期为:{}'.format(lsdate))
+    print('全部股票涨跌停价格的最后记录日期为:{},涨跌停统计数据最后记录日期为:{}'.format(stkdate,lsdate))
     print('已经是最新数据，无需更新')
