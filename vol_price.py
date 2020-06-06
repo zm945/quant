@@ -1,9 +1,9 @@
 '''
 @Author: 巴山哥
 @Date: 2020-06-07 10:43:19
-@LastEditTime: 2020-06-07 13:59:59
+@LastEditTime: 2020-06-07 07:16:14
 @Description： 自选股分价统计
-@FilePath: /quant/vol_price.py
+@FilePath: \quant\vol_price.py
 @E-mail: zm945@126.com
 '''
 import pandas as pd
@@ -18,13 +18,13 @@ import platform
 # sub_dirs--存储转换后对应格式的数据文件
 
 if (platform.system() == 'Windows'):
-    TDX_Data_Dir = Path('D:/2020tdx/vipdoc')
-    Stock_Data_Dir = Path('D:/Stock_Data')
+    Vp_Data_Dir = Path('D:/2020tdx/T0002/export/')
+    Vol_Price_Dir = Path('D:/Stock_Data/Vol_Price')
 else:
     TDX_Data_Dir = Path.home() / 'Stock_Data/TDX'  # mac及ubuntu
     Vp_Data_Dir = TDX_Data_Dir / 'export'  #分价表原始数据子目录
     Vol_Price_Dir = Path.home() / 'Stock_Data/Vol_Price'
-    if (not Vol_Price_Dir.exists()):
+if (not Vol_Price_Dir.exists()):
         Vol_Price_Dir.mkdir(parents=True, exist_ok=True)
 
 vpfile=Path(Vp_Data_Dir/'000685分价.txt')
