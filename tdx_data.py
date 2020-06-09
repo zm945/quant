@@ -118,7 +118,7 @@ def build_tushare_data(kline, tdxcols, tusharecols, ts_code):
 # #####  遍历日线文件并存储
 
 filesize = {}  # 用字典记录通达信日线文件的长度
-hdffile = Stock_Data_Dir / 'hdf/tdx.h5'
+hdffile = Stock_Data_Dir / 'hdf/t.h5'
 if (not Path(hdffile).exists()):  # 如果hdf文件不存在，则为全备份
     fileoffset = 0  # 字节偏移量为0
     updata = False
