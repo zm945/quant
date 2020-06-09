@@ -2,7 +2,7 @@
 '''
 @Author: 巴山哥
 @Date: 2020-06-09 09:53:32
-@LastEditTime: 2020-06-09 14:52:38
+@LastEditTime: 2020-06-09 15:33:52
 @Description: 读取通达信分价统计数据
 @FilePath: \quant\read_vp.py
 @E-mail: zm945@126.com
@@ -30,7 +30,7 @@ for code in set(df['ts_code']):
         datalist.append(tmp)
     vdata = pd.concat(datalist, ignore_index=True)
     print(code)    
-    #print(vdata.sort_values(by='成交'))
+    print(vdata.sort_values(by='成交'))
     print(vdata)
     print('-------------------------------------------------------')
 #t = df.loc[df.ts_code == '000007']
