@@ -31,10 +31,9 @@ for code in set(df['ts_code']):
     vdata = pd.concat(datalist, ignore_index=True)
     print(code,'最近几日成交情况:')
     #print(vdata.sort_values(by='成交'))
-    print(vdata)
+    vdata['trade_date']=pd.to_datetime(vdata['trade_date'])
+    print(vdata.sort_values(by='trade_date'))
     print('汇总:')
     print(vdata.groupby('价格').sum().sort_values(by='成交'))
     print('-------------------------------------------------------')
-#t = df.loc[df.ts_code == '000007']
-#tt = t[t.trade_date == '20200604']
-#tt.sort_values(by='成交')
+
