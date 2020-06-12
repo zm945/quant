@@ -1,7 +1,6 @@
 '''
 @Author: 巴山哥
 @Date: 2020-06-07 10:43:19
-@LastEditTime: 2020-06-07 08:26:00
 @Description： 自选股分价统计
 @FilePath: \quant\vol_price.py
 @E-mail: zm945@126.com
@@ -30,7 +29,7 @@ else:
 if (not Vol_Price_Dir.exists()):
         Vol_Price_Dir.mkdir(parents=True, exist_ok=True)
 
-hdffile = Vol_Price_Dir / 'vol_price.h5'
+hdffile = Vol_Price_Dir / 'vp.h5'
 if (not Path(hdffile).exists()):  # 如果hdf文件不存在，则为全备份
     updata = False
     tip = '新建数据文件.....'
@@ -54,4 +53,4 @@ for vpfile in Vp_Data_Dir.rglob('*.txt'):
 vol_price=pd.concat(vp,ignore_index=True)
 print(tip)
 vol_price.to_hdf(hdffile, 'vol_price', append=updata,encoding='GB2312')
-#print(vol_price)
+print('ok')
