@@ -26,12 +26,14 @@ for code in set(df['ts_code']):
     datalist = []
     for tdate in days:
         tt = vp[vp.trade_date == tdate]
-        tmp = tt.tail()
+        tmp = tt.sort_values(by='成交').tail()
         datalist.append(tmp)
     vdata = pd.concat(datalist, ignore_index=True)
-    print(code)    
-    print(vdata.sort_values(by='成交'))
+    print(code,'最近几日成交情况:')
+    #print(vdata.sort_values(by='成交'))
     print(vdata)
+    print('汇总:')
+    print(vdata.groupby('价格').sum().sort_values(by='成交'))
     print('-------------------------------------------------------')
 #t = df.loc[df.ts_code == '000007']
 #tt = t[t.trade_date == '20200604']
